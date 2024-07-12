@@ -5,6 +5,7 @@ import errorHandler from './middlewares/errorHandler'
 import notFound from './middlewares/notFound'
 import logger from './middlewares/logger'
 import authRoutes from './routes/auth'
+import testRoute from './routes/testJwt'
 
 const app = express()
 
@@ -17,6 +18,7 @@ app.use(cors({
 }))
 
 app.use('/api/auth', authRoutes)
+app.use('/api/test', testRoute)
 
 //catch all not found errors and forward them to errorHandler
 app.use(notFound)
