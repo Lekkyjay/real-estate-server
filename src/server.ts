@@ -19,7 +19,7 @@ app.use(cors({
 }))
 
 app.use('/api/auth', authRoutes)
-app.use('/api/user', userRoutes)
+app.use('/api/users', userRoutes)
 app.use('/api/test', testRoute)
 
 //catch all not found errors and forward them to errorHandler
