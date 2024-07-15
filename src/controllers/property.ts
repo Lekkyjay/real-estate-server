@@ -42,15 +42,15 @@ const getProperty = async (req: Request, res: Response, next: NextFunction) => {
 
 const createProperty = async (req: Request, res: Response, next: NextFunction) => {  
   const userId = req.userId
-  const {title, price, images, address, city, bedroom, bathroom, latitude, longitude, listing_type, category, desc, utilities, size, income, pet, school, bus} = req.body
+  const {title, price, images, address, city, bedroom, bathroom, latitude, longitude, listing_type, category, desc, utilities, size, income, pet, school, bus, restaurant} = req.body
   
   const query = `
     INSERT INTO properties (userid, title, price, images, address, city, bedroom, bathroom, latitude, longitude, 
-      listing_type, category, description, utilities, size, income, pet, school, bus)
-    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19) 
+      listing_type, category, description, utilities, size, income, pet, school, bus, restaurant)
+    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20) 
     RETURNING *`
   
-  const params = [userId, title, price, images, address, city, bedroom, bathroom, latitude, longitude, listing_type, category, desc, utilities, size, income, pet, school, bus]
+  const params = [userId, title, price, images, address, city, bedroom, bathroom, latitude, longitude, listing_type, category, desc, utilities, size, income, pet, school, bus, restaurant]
        
   try {    
     const property = await pool.query(query, params)
