@@ -30,7 +30,8 @@ const getProperty = async (req: Request, res: Response, next: NextFunction) => {
     
     return res.status(200).send({
       message: 'getProperty successful.',
-      data: { property: property.rows[0], user: user.rows[0] },
+      // data: { property: property.rows[0], user: user.rows[0] },
+      data: { ...property.rows[0], ...user.rows[0] },
       success: true
     })
   } 
