@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response } from 'express'
 import bcrypt from 'bcryptjs'
+import jwt from 'jsonwebtoken'
 import { pool } from '../dbConn'
 import CustomError from '../utils/customError'
 
@@ -51,15 +52,34 @@ const getProperty = async (req: Request, res: Response, next: NextFunction) => {
   try {    
     const property = await pool.query('SELECT * FROM properties WHERE id = $1', [id])
     const user = await pool.query('SELECT username, avatar FROM users WHERE id = $1', [property.rows[0].userid])
-    
-    return res.status(200).send({
-      message: 'getProperty successful.',
-      data: { ...property.rows[0], ...user.rows[0] },
-      success: true
-    })
+
+    const token = req.cookies?.auth_token    
+
+    if (token) {
+      jwt.verify(token, process.env.JWT_SECRET as string, async (err: any, payload: any) => {
+        if (err) return next(new CustomError(403, 'Token is not valid!'))        
+
+        const userId = payload.id
+        const savedProperty = await pool.query(`
+          SELECT * FROM savedproperties WHERE userId = $1 AND propertyId = $2`, [userId, id])
+
+        return res.status(200).send({
+          message: 'getProperty successful.',
+          data: { ...property.rows[0], ...user.rows[0], isSaved: savedProperty.rows.length > 0 },
+          success: true
+        })
+      })
+    } 
+    else {
+      res.status(200).send({
+        message: 'getProperty successful.',
+        data: { ...property.rows[0], ...user.rows[0], isSaved: false },
+        success: true
+      })
+    }
   } 
   catch (err) {
-    console.error(err)
+    console.error('getProperty error!!!', err)
     res.status(500).send('Server error')
   }
 }

@@ -89,7 +89,7 @@ const deleteUser = async (req: Request, res: Response, next: NextFunction) => {
   try {    
     await pool.query('DELETE FROM users WHERE id = $1', [id])
 
-    return res.status(200).send({
+    res.status(200).send({
       message: 'User deleted successfully.',
       data: null,
       success: true
@@ -102,4 +102,37 @@ const deleteUser = async (req: Request, res: Response, next: NextFunction) => {
   }
 }
 
-export { getUsers, getUser, updateUser, deleteUser }
+const toggleSaveProperty = async (req: Request, res: Response, next: NextFunction) => {  
+  const propertyId = req.body.propertyId
+  const userId = req.userId    
+
+  try {    
+    const propertyExist = await pool.query(`
+      SELECT * FROM savedproperties WHERE userId = $1 AND propertyId = $2`, [userId, propertyId])
+    
+    if (propertyExist.rows.length > 0) {
+      await pool.query(`DELETE FROM savedproperties WHERE userId = $1 AND propertyId = $2`, [userId, propertyId]) 
+
+      res.status(200).send({
+        message: 'Saved property deleted successfully.',
+        data: null,
+        success: true
+      })
+    }
+    else {
+      await pool.query(`INSERT INTO savedproperties (userId, propertyId) VALUES ($1, $2)`, [userId, propertyId]) 
+
+      res.status(200).send({
+        message: 'Property saved successfully.',
+        data: null,
+        success: true
+      })
+    }
+  } 
+  catch (err) {
+    console.error(err)
+    res.status(500).send('Server error')
+  }
+}
+
+export { getUsers, getUser, updateUser, deleteUser, toggleSaveProperty }
