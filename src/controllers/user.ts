@@ -135,4 +135,26 @@ const toggleSaveProperty = async (req: Request, res: Response, next: NextFunctio
   }
 }
 
-export { getUsers, getUser, updateUser, deleteUser, toggleSaveProperty }
+const getUserProperties = async (req: Request, res: Response, next: NextFunction) => {    
+  const userId = req.userId;
+  try {
+    const userProperties = await pool.query('SELECT * FROM properties WHERE userid = $1', [userId])
+    const savedProperties = await pool.query(`
+      SELECT * FROM properties p 
+      INNER JOIN savedproperties sp 
+      ON p.id = sp.propertyid
+      WHERE sp.userid = $1`, [userId])        
+
+      res.status(200).send({
+        message: 'getUserProperties successfull.',
+        data: { userProperties: userProperties.rows, savedProperties: savedProperties.rows },
+        success: true
+      })
+  } 
+  catch (err) {
+    console.log('getUserProperties failed!', err);
+    next(err)
+  }  
+}
+
+export { getUsers, getUser, updateUser, deleteUser, toggleSaveProperty, getUserProperties }
