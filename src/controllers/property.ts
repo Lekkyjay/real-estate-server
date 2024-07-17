@@ -3,16 +3,40 @@ import bcrypt from 'bcryptjs'
 import { pool } from '../dbConn'
 import CustomError from '../utils/customError'
 
+//it serves 2 reqs with differnt params coming from: searchBar.tsx, Filter.tsx
 const getProperties = async (req: Request, res: Response, next: NextFunction) => {  
+  const { type, city, minPrice, maxPrice, bedroom, property } = req.query
+  
+  const _minPrice = parseInt(minPrice as string)
+  const _maxPrice = parseInt(maxPrice as string) != 0 ? parseInt(maxPrice as string) : 10000000
+  const _bedroom = bedroom ? bedroom : ''
+  const _property = property ? property : ''
+  const cityQuery = (city != '') ? 'AND city = $4 ' : 'AND $4 = $4 ' 
+  const bedroomQuery = (bedroom && bedroom != '') ? 'AND bedroom = $5 ' : 'AND $5 = $5 ' 
+  const propertyQuery = (property && property != '') ? 'AND category = $6 ' : 'AND $6 = $6 ' 
+  
+  const query = `
+    SELECT * FROM properties WHERE 1 = 1
+    AND listing_type = $1
+    AND price >= $2
+    AND price <= $3
+    ${cityQuery}
+    ${bedroomQuery}
+    ${propertyQuery}
+  `
+  const params = [type, _minPrice, _maxPrice, city, _bedroom, _property]
+  console.log(query, params)
+
   try {    
-    const properties = await pool.query('SELECT * FROM properties')     
+    const properties = await pool.query(query, params)
 
-    return res.status(200).send({
-      message: 'getProperties successful.',
-      data: properties.rows,
-      success: true
-    })
-
+    // setTimeout(() => {
+      res.status(200).send({
+        message: 'getProperties successful.',
+        data: properties.rows,
+        success: true
+      })
+    // }, 3000)
   } 
   catch (err) {
     console.error(err)
@@ -30,7 +54,6 @@ const getProperty = async (req: Request, res: Response, next: NextFunction) => {
     
     return res.status(200).send({
       message: 'getProperty successful.',
-      // data: { property: property.rows[0], user: user.rows[0] },
       data: { ...property.rows[0], ...user.rows[0] },
       success: true
     })
