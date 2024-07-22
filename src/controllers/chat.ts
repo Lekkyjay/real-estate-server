@@ -3,13 +3,13 @@ import { pool } from '../dbConn'
 import CustomError from '../utils/customError'
 
 const getChats = async (req: Request, res: Response, next: NextFunction) => {
-  const userId = 2
+  const userId = req.userId
 
   try {
     const myChats = await pool.query(`
       SELECT c.*, username, avatar FROM chats c 
       INNER JOIN users u ON u.id IN (c.creatorid, c.receiverid)
-      WHERE u.id = $1`, [userId])   
+      WHERE u.id <> $1`, [userId])   
 
     res.status(200).send({
       message: 'Chats gotten successfully.',
@@ -24,10 +24,8 @@ const getChats = async (req: Request, res: Response, next: NextFunction) => {
 }
 
 const getChat = async (req: Request, res: Response, next: NextFunction) => {
-  const userId = 2
-  const chatId = req.params.id
-
-  
+  const userId = req.userId
+  const chatId = req.params.id  
 
   try {
     const chat = await pool.query('SELECT * FROM chats WHERE creatorid = $1 OR receiverid = $1 AND id = $2', [userId, chatId])
@@ -39,7 +37,7 @@ const getChat = async (req: Request, res: Response, next: NextFunction) => {
       AND $1 <> ALL(seenby)`, [userId, chatId]
     )
 
-    const messages = await pool.query('SELECT * FROM messages WHERE chatid = $1 ORDER BY created_at DESC', [chatId])
+    const messages = await pool.query('SELECT * FROM messages WHERE chatid = $1 ORDER BY created_at ASC', [chatId])
 
     res.status(200).send({
       message: 'Got chat and its messages successfully.',

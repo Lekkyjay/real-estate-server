@@ -52,7 +52,7 @@ const login = async (req: Request, res: Response, next: NextFunction) => {
     const payload = { id: user.rows[0].id }      
     const secret = process.env.JWT_SECRET as string
 
-    const token = jwt.sign(payload, secret, { expiresIn: '1d' })
+    const token = jwt.sign(payload, secret, { expiresIn: '7d' })
 
     const { password, ...others } = user.rows[0]
 
