@@ -74,7 +74,7 @@ const createChat = async (req: Request, res: Response, next: NextFunction) => {
 }
 
 const readChat = async (req: Request, res: Response, next: NextFunction) => {
-  const userId = 2
+  const userId = req.userId
   const chatId = req.params.id
 
   try {
@@ -102,7 +102,7 @@ const readChat = async (req: Request, res: Response, next: NextFunction) => {
 }
 
 const createChatMsg = async (req: Request, res: Response, next: NextFunction) => {
-  const userId = 2
+  const userId = req.userId
   const chatId = req.params.chatId
   const { message } = req.body
 
