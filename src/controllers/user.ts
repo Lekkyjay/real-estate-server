@@ -136,7 +136,7 @@ const toggleSaveProperty = async (req: Request, res: Response, next: NextFunctio
 }
 
 const getUserProperties = async (req: Request, res: Response, next: NextFunction) => {    
-  const userId = req.userId;
+  const userId = req.userId
   try {
     const userProperties = await pool.query('SELECT * FROM properties WHERE userid = $1', [userId])
     const savedProperties = await pool.query(`
@@ -152,9 +152,31 @@ const getUserProperties = async (req: Request, res: Response, next: NextFunction
       })
   } 
   catch (err) {
-    console.log('getUserProperties failed!', err);
+    console.log('getUserProperties failed!', err)
     next(err)
   }  
 }
 
-export { getUsers, getUser, updateUser, deleteUser, toggleSaveProperty, getUserProperties }
+const getNotificationCount = async (req: Request, res: Response, next: NextFunction) => {
+  const userId = req.userId
+  try {
+    const notificationCount = await pool.query(`
+      SELECT count(*) FROM chats 
+      WHERE 1 = 1
+      AND creatorid = $1 OR receiverid = $1
+      AND $1 <> ALL (seenby)`, [userId])
+
+      console.log('notificationCount....:', notificationCount.rows[0])
+      res.status(200).send({
+        message: 'Got notification count successfully.',
+        data: notificationCount.rows[0],
+        success: true
+      })
+  } 
+  catch (err) {
+    console.log('getNotificationCount error....:', err)
+    next(err)
+  }
+}
+
+export { getUsers, getUser, updateUser, deleteUser, toggleSaveProperty, getUserProperties, getNotificationCount }
