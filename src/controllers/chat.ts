@@ -6,14 +6,20 @@ const getChats = async (req: Request, res: Response, next: NextFunction) => {
   const userId = req.userId
 
   try {
-    const myChats = await pool.query(`
-      SELECT c.*, username, avatar FROM chats c 
-      INNER JOIN users u ON u.id IN (c.creatorid, c.receiverid)
-      WHERE u.id <> $1`, [userId])   
+    const myChats = await pool.query('SELECT * FROM chats WHERE $1 IN (creatorid, receiverid)', [userId])   
+
+    const chatList = myChats.rows.map(async(chat) => {
+      const partnerid = chat.creatorid !== userId ? chat.creatorid : chat.receiverid
+      const user = await pool.query(`SELECT username, avatar FROM users WHERE id =${partnerid}`)
+      return { ...chat, ...user.rows[0], partnerid }
+    })
+    
+    const chats = await Promise.all(chatList)   //chatList is an array of promises
+    console.log('getCharts response....:', chats, 'signedIn user...:', userId)
 
     res.status(200).send({
-      message: 'Chats gotten successfully.',
-      data: myChats.rows,
+      message: 'Chats and userdetails gotten successfully.',
+      data: chats,
       success: true
     })
   } 
@@ -28,7 +34,8 @@ const getChat = async (req: Request, res: Response, next: NextFunction) => {
   const chatId = req.params.id  
 
   try {
-    const chat = await pool.query('SELECT * FROM chats WHERE creatorid = $1 OR receiverid = $1 AND id = $2', [userId, chatId])
+    // const chat = await pool.query('SELECT * FROM chats WHERE creatorid = $1 OR receiverid = $1 AND id = $2', [userId, chatId])
+    const chat = await pool.query('SELECT * FROM chats WHERE $1 in (creatorid, receiverid) AND id = $2', [userId, chatId])
 
     await pool.query(`
       UPDATE chats 
@@ -52,7 +59,7 @@ const getChat = async (req: Request, res: Response, next: NextFunction) => {
 }
 
 const createChat = async (req: Request, res: Response, next: NextFunction) => {
-  const userId = 2
+  const userId = req.userId
   const { receiverId } = req.body
 
   try {
