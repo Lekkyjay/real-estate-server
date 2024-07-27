@@ -159,14 +159,13 @@ const getUserProperties = async (req: Request, res: Response, next: NextFunction
 
 const getNotificationCount = async (req: Request, res: Response, next: NextFunction) => {
   const userId = req.userId
+  console.log('userId...:', userId)
   try {
     const notificationCount = await pool.query(`
       SELECT count(*) FROM chats 
-      WHERE 1 = 1
-      AND creatorid = $1 OR receiverid = $1
+      WHERE $1 IN (creatorid, receiverid)
       AND $1 <> ALL (seenby)`, [userId])
 
-      console.log('notificationCount....:', notificationCount.rows[0])
       res.status(200).send({
         message: 'Got notification count successfully.',
         data: notificationCount.rows[0],
