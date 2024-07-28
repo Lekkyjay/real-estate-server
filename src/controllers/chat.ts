@@ -15,7 +15,7 @@ const getChats = async (req: Request, res: Response, next: NextFunction) => {
     })
     
     const chats = await Promise.all(chatList)   //chatList is an array of promises
-    console.log('getCharts response....:', chats, 'signedIn user...:', userId)
+    // console.log('getCharts response....:', chats, 'signedIn user...:', userId)
 
     res.status(200).send({
       message: 'Chats and userdetails gotten successfully.',
@@ -94,7 +94,7 @@ const readChat = async (req: Request, res: Response, next: NextFunction) => {
       RETURNING *`, [userId, chatId]
     )
 
-    console.log('seenBy....:', seenBy.rows)
+    // console.log('seenBy....:', seenBy.rows)
   
     res.status(200).send({
       message: 'Chat read/updated successfully.',

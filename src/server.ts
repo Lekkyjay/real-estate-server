@@ -16,7 +16,7 @@ app.use(logger)
 app.use(express.json())
 app.use(cookieParser())
 app.use(cors({ 
-  origin: process.env.CLIENT_URL,
+  origin: [process.env.CLIENT_URL_DEV as string, process.env.CLIENT_URL_PROD as string],
   credentials: true 
 }))
 

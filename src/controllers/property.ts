@@ -25,8 +25,8 @@ const getProperties = async (req: Request, res: Response, next: NextFunction) =>
     ${bedroomQuery}
     ${propertyQuery}
   `
-  const params = [type, _minPrice, _maxPrice, city, _bedroom, _property]
-  console.log(query, params)
+  const params = [type, _minPrice, _maxPrice, city, _bedroom, _property]  
+  console.log(query, ', ', params)
 
   try {    
     const properties = await pool.query(query, params)

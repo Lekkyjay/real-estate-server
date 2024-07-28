@@ -14,7 +14,7 @@ const logger = (req: Request, res: Response, next: NextFunction) => {
   const fullDate = year + '-' + month + '-' + date + '::' + hours + ':' + minutes + ':' + seconds
 
   // 2024-07-12::18:10:26  POST http://localhost:5000/api/auth/register
-  console.log(`${fullDate}  ${req.method} ${req.protocol}://${req.get('host')}${req.originalUrl}`)  
+  console.log(`${fullDate} ${res.statusCode}  ${req.method} ${req.protocol}://${req.get('host')}${req.originalUrl}`)  
   next()
 }
 
